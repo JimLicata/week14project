@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="game.css">
+    <title>Simple Game 3</title>
+
+</head>
+
+<body>
+    <script>
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        canvas.width = 512;
+        canvas.height = 480;
+        document.body.appendChild(canvas);
+
+        // Background image
+        var bgReady = false;
+        var bgImage = new Image();
+        var gameover = new Image();
+        bgImage.onload = function () {
+            bgReady = true;
+        };
+        gameover.onload = function () {
+            bgReady = true;
+        };
+        bgImage.src = "background2.png";
+        gameover.src = "gameover.png";
+
+        // Hero image
+        var heroReady = false;
+        var linkDown = new Image();
+        var linkDown2 = new Image();
+        var linkRight = new Image();
+        var linkRight2 = new Image();
+        var linkUp = new Image();
+        var linkUp2 = new Image();
+        var linkLeft = new Image();
+        var linkLeft2 = new Image();
+        var linkStabDown = new Image();
+        var linkStabUp = new Image();
+        var linkStabLeft = new Image();
+        var linkStabRight = new Image();
+        linkDown.onload = function () {
+            heroReady = true;
+        };
+        linkDown2.onload = function () {
+            heroReady = true;
+        };
+        linkRight.onload = function () {
+            heroReady = true;
+        };
+        linkRight2.onload = function () {
+            heroReady = true;
+        };
+        linkUp.onload = function () {
+            heroReady = true;
+        };
+        linkUp2.onload = function () {
+            heroReady = true;
+        };
+        linkLeft.onload = function () {
+            heroReady = true;
+        };
+        linkLeft2.onload = function () {
+            heroReady = true;
+        };
+        linkStabDown.onload = function () {
+            heroReady = true;
+        };
+        linkStabRight.onload = function () {
+            heroReady = true;
+        };
+        linkStabLeft.onload = function () {
+            heroReady = true;
+        };
+        linkStabUp.onload = function () {
+            heroReady = true;
+        };
+        linkDown.src = "link/link.png";
+        linkDown2.src = "link/link2.png";
+        linkRight.src = "link/linkRight.png";
+        linkRight2.src = "link/linkRight2.png";
+        linkUp.src = "link/linkUp.png";
+        linkUp2.src = "link/linkUp2.png";
+        linkLeft.src = "link/linkLeft.png";
+        linkLeft2.src = "link/linkLeft2.png";
+        linkStabDown.src = "link/linkStabDown.png";
+        linkStabRight.src = "link/linkStabRight.png";
+        linkStabUp.src = "link/linkStabUp.png";
+        linkStabLeft.src = "link/linkStabLeft.png";
+
+        // Monster image
+        var monsterReady = false;
+        var monsterDown = new Image();
+        var monsterUp = new Image();
+        var monsterRight = new Image();
+        var monsterLeft = new Image();
+        monsterDown.onload = function () {
+            monsterReady = true;
+        };
+        monsterUp.onload = function () {
+            monsterReady = true;
+        };
+        monsterLeft.onload = function () {
+            monsterReady = true;
+        };
+        monsterRight.onload = function () {
+            monsterReady = true;
+        };
+
+        monsterDown.src = "octorock/octorockDown.png";
+        monsterUp.src = "octorock/octorockUp.png";
+        monsterRight.src = "octorock/octorockRight.png";
+        monsterLeft.src = "octorock/octorockLeft.png";
+
+        // heart image
+        var heartReady = false;
+        var heartImage = new Image();
+        heartImage.onload = function () {
+            heartReady = true;
+        };
+
+        heartImage.src = "heart.png";
+
+        // Game objects
+        var hero =
+            {
+                speed: 256, // movement in pixels per second
+                x: 0,
+                y: 0
+            };
+
+        var monster =
+            {
+                speed: 100,
+                x: 0,
+                y: 0
+            };
+
+        var heart =
+            {
+                x: 0,
+                y: 0
+            };
+        var monstersCaught = 0;
+
+        // Handle keyboard controls
+        var keysDown = {};
+
+        addEventListener("keydown", function (e) {
+            keysDown[e.keyCode] = true;
+        }, false);
+
+        addEventListener("keyup", function (e) {
+            delete keysDown[e.keyCode];
+        }, false);
+
+        // Reset the monster when the player kills it
+        var reset = function () {
+            // Throw the monster somewhere on the screen randomly
+            monster.x = 32 + (Math.random() * (canvas.width - 70));
+            monster.y = 32 + (Math.random() * (canvas.height - 70));
+            num = Math.random();
+        };
+
+        let num = 0;
+        let direction = "down"
+        let attack = false;
+        let right = false;
+        let down = false;
+        let heartAppear = false;
+        var which = Math.random();
+        if (which >= .25 && which < .50) {
+            right = true;
+        }
+
+        else {
+            down = true;
+        }
+
+        // Update game objects
+
+        var update = function (modifier) {
+            if (life <= 0) {
+                isGameOver = true;
+            }
+            // checks for player inputs
+            if (32 in keysDown) // Player holding space
+            {
+                attack = true;
+            }
+            else if (38 in keysDown) // Player holding up
+            {
+                hero.y -= hero.speed * modifier;
+                direction = "up";
+            }
+            else if (40 in keysDown) // Player holding down
+            {
+                hero.y += hero.speed * modifier;
+                direction = "down";
+            }
+            else if (37 in keysDown) // Player holding left
+            {
+                hero.x -= hero.speed * modifier;
+                direction = "left";
+            }
+            else if (39 in keysDown) // Player holding right
+            {
+                hero.x += hero.speed * modifier;
+                direction = "right";
+            }
+
+            else if (32 in keysDown) // Player holding space
+            {
+                attack = true;
+            }
+
+            if (monsterDir == "right") {
+                monster.x += monster.speed * modifier;
+
+                if (monster.x + 60 > canvas.width) // out of bounds
+                {
+                    num = .9; // changes direction to left
+                }
+            }
+
+            else if (monsterDir == "left") {
+                monster.x -= monster.speed * modifier;
+
+                if (monster.x - 30 < 0) // out of bounds
+                {
+                    num = .5; // changes direction to right
+                }
+            }
+
+            else if (monsterDir == "up") {
+                monster.y -= monster.speed * modifier;
+
+                if (monster.y - 30 < 0) // out of bounds
+                {
+                    num = .1; // changes direction to down
+                }
+
+            }
+
+            else if (monsterDir == "down") {
+                monster.y += monster.speed * modifier;
+
+                if (monster.y + 60 > canvas.height) // out of bounds
+                {
+                    num = .3; // changes direction to up
+                }
+            }
+
+            // Are they touching?
+            // each if calculates collision detection with the sword in each direction
+            if (hero.x <= (monster.x + 32)
+                && monster.x <= (hero.x + 32)
+                && hero.y <= (monster.y + 32)
+                && monster.y <= (hero.y + 50)
+                && attack
+                && direction == "down") {
+                ++monstersCaught;
+                isHeart();
+                reset();
+            }
+
+            else if (hero.x <= (monster.x + 32)
+                && monster.x <= (hero.x + 32)
+                && hero.y <= (monster.y + 50)
+                && monster.y <= (hero.y + 32)
+                && attack
+                && direction == "up") {
+                ++monstersCaught;
+                isHeart();
+                reset();
+            }
+
+            else if (hero.x <= (monster.x + 50)
+                && monster.x <= (hero.x + 32)
+                && hero.y <= (monster.y + 32)
+                && monster.y <= (hero.y + 32)
+                && attack
+                && direction == "left") {
+                ++monstersCaught;
+                isHeart();
+                reset();
+            }
+
+            else if (hero.x <= (monster.x + 32)
+                && monster.x <= (hero.x + 50)
+                && hero.y <= (monster.y + 32)
+                && monster.y <= (hero.y + 32)
+                && attack
+                && direction == "right") {
+                ++monstersCaught;
+                isHeart();
+                reset();
+            }
+
+            // if player touches the enemy without attacking
+            else if (hero.x <= (monster.x + 32)
+                && monster.x <= (hero.x + 32)
+                && hero.y <= (monster.y + 32)
+                && monster.y <= (hero.y + 32)) {
+                if (direction == "down") {
+                    hero.y -= 40; // bounce the player in the opposite direction
+                }
+
+                else if (direction == "up") {
+                    hero.y += 40;
+                }
+
+                else if (direction == "left") {
+                    hero.x += 40;
+                }
+
+                else if (direction == "right") {
+                    hero.x -= 40;
+                }
+
+                life--; // subtract life
+            }
+
+            if (hero.x <= (heart.x + 10)
+                && heart.x <= (hero.x + 32)
+                && hero.y <= (heart.y + 10)
+                && heart.y <= (hero.y + 32)) {
+                heartAppear = false;
+                heart.x = 2000;
+                heart.y = 2000;
+
+                if (life < 4) {
+                    life++;
+                }
+            }
+
+        };
+
+        var timer = 0;
+        let isGameOver = false;
+        let monsterDir = "";
+        // Draw everything
+        var render = function () {
+            if (isGameOver == true) {
+                ctx.drawImage(gameover, 0, 0);
+
+                // game over text
+                ctx.fillStyle = "black";
+                ctx.font = "24px Helvetica";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+                ctx.fillText("Score: " + monstersCaught * 100, canvas.width / 2, (canvas.height / 2) + 50);
+            }
+            else {
+                if (bgReady) {
+                    ctx.drawImage(bgImage, 0, 0);
+                }
+
+                // draws based on which direction was pressed last and whether or not the player is attacking
+                if (heroReady) {
+                    if (direction == "up") {
+                        if (attack) {
+                            ctx.drawImage(linkStabUp, hero.x, hero.y - 20);
+                        }
+                        else ctx.drawImage(linkUp, hero.x, hero.y);
+
+                        attack = false;
+                    }
+
+                    if (direction == "down") {
+                        if (attack) {
+                            ctx.drawImage(linkStabDown, hero.x, hero.y);
+                        }
+                        else ctx.drawImage(linkDown, hero.x, hero.y);
+
+                        attack = false;
+                    }
+
+                    if (direction == "left") {
+                        if (attack) {
+                            ctx.drawImage(linkStabLeft, hero.x - 20, hero.y);
+                        }
+                        else ctx.drawImage(linkLeft, hero.x, hero.y);
+
+                        attack = false;
+                    }
+
+                    if (direction == "right") {
+                        if (attack) {
+                            ctx.drawImage(linkStabRight, hero.x, hero.y);
+                        }
+                        else ctx.drawImage(linkRight, hero.x, hero.y);
+
+                        attack = false;
+                    }
+                }
+
+                if (monsterReady) {
+
+                    if (num < .25) // down
+                    {
+                        ctx.drawImage(monsterDown, monster.x, monster.y);
+                        monsterDir = "down";
+                    }
+
+                    else if (num >= .25 && num < .5) // up
+                    {
+                        ctx.drawImage(monsterUp, monster.x, monster.y);
+                        monsterDir = "up";
+                    }
+
+                    else if (num >= .5 && num < .75) // right
+                    {
+                        ctx.drawImage(monsterRight, monster.x, monster.y);
+                        monsterDir = "right";
+                    }
+
+                    else // left
+                    {
+                        ctx.drawImage(monsterLeft, monster.x, monster.y);
+                        monsterDir = "left";
+                    }
+
+                }
+
+                if (heartReady) {
+                    {
+                        if (heartAppear == true) {
+                            ctx.drawImage(heartImage, heart.x, heart.y);
+                        }
+                    }
+                }
+                // Score
+                ctx.fillStyle = "black";
+                ctx.font = "24px Helvetica";
+                ctx.textAlign = "left";
+                ctx.textBaseline = "top";
+                ctx.fillText("Score: " + monstersCaught * 100, 32, 55);
+                ctx.fillText("Life: " + life, 32, 32);
+            }
+        };
+
+        // determines whether a hear should appear
+        var isHeart = function () {
+            var prob = Math.random();
+            if (prob > .80) {
+                heart.x = monster.x;
+                heart.y = monster.y;
+                heartAppear = true;
+            }
+        }
+
+        // The main game loop
+        var main = function () {
+            var now = Date.now();
+            var delta = now - then;
+
+            update(delta / 1000);
+            render();
+
+            then = now;
+
+            // Request to do this again ASAP
+            requestAnimationFrame(main);
+        };
+
+        // Cross-browser support for requestAnimationFram
+        var w = window;
+        requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+
+        // Play the game
+        var then = Date.now();
+        hero.x = canvas.width / 2;
+        hero.y = canvas.height / 2;
+        var life = 4;
+        reset();
+        main();
+    </script>
+</body>
+
+</html>
